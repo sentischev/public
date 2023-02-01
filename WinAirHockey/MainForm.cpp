@@ -5,8 +5,8 @@ using namespace System::Windows::Forms;
 
 int ball_pos_x = 0;
 int ball_pos_y = 0;
-int ball_x_inc = 5;
-int ball_y_inc = -5;
+int ball_x_inc = 2;
+int ball_y_inc = -2;
 
 [STAThreadAttribute]
 void Main(array<String ^> ^args) {

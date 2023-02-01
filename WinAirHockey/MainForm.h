@@ -1,5 +1,6 @@
 #pragma once
 
+#include "MyDoubleBufferedPanel.h"
 
 extern int ball_pos_x;
 extern int ball_pos_y;
@@ -20,6 +21,7 @@ namespace WinAirHockey {
 	/// </summary>
 	public ref class MainForm : public System::Windows::Forms::Form
 	{
+
 	public:
 		MainForm(void)
 		{
@@ -27,6 +29,20 @@ namespace WinAirHockey {
 			//
 			//TODO: Add the constructor code here
 			//
+
+			myDoubleBufferedPanel1 = gcnew MyDoubleBufferedPanel();
+			myDoubleBufferedPanel1->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &MainForm::MyDoubleBufferedPanel_Paint);
+
+
+			myDoubleBufferedPanel1->Location = System::Drawing::Point(0, 0);
+			myDoubleBufferedPanel1->Name = L"myDoubleBufferedPanel1";
+			myDoubleBufferedPanel1->Size = System::Drawing::Size(splitContainer1->Panel1->Width, splitContainer1->Panel1->Height);
+			myDoubleBufferedPanel1->TabIndex = 0;
+			myDoubleBufferedPanel1->BackColor = Color::FromArgb(255, 0, 0, 0);
+
+			this->splitContainer1->Panel1->SuspendLayout();
+			this->splitContainer1->Panel1->Controls->Add(myDoubleBufferedPanel1);
+			this->splitContainer1->Panel1->ResumeLayout();
 		}
 
 	protected:
@@ -62,10 +78,12 @@ namespace WinAirHockey {
 	private: System::Windows::Forms::Button^ button1;
 	private: System::ComponentModel::IContainer^ components;
 
+
 	private:
 		/// <summary>
 		/// Required designer variable.
 		/// </summary>
+	private: MyDoubleBufferedPanel ^myDoubleBufferedPanel1;
 
 
 #pragma region Windows Form Designer generated code
@@ -93,10 +111,10 @@ namespace WinAirHockey {
 			this->toolStripMenuItem12 = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->openFileDialog1 = (gcnew System::Windows::Forms::OpenFileDialog());
 			this->splitContainer1 = (gcnew System::Windows::Forms::SplitContainer());
-			this->timer1 = (gcnew System::Windows::Forms::Timer(this->components));
 			this->button1 = (gcnew System::Windows::Forms::Button());
+			this->timer1 = (gcnew System::Windows::Forms::Timer(this->components));
 			this->menuStrip1->SuspendLayout();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->splitContainer1))->BeginInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->splitContainer1))->BeginInit();
 			this->splitContainer1->Panel2->SuspendLayout();
 			this->splitContainer1->SuspendLayout();
 			this->SuspendLayout();
@@ -104,7 +122,7 @@ namespace WinAirHockey {
 			// menuStrip1
 			// 
 			this->menuStrip1->ImageScalingSize = System::Drawing::Size(17, 17);
-			this->menuStrip1->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(3) {
+			this->menuStrip1->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem ^  >(3) {
 				this->toolStripMenuItem1,
 					this->toolStripMenuItem2, this->toolStripMenuItem3
 			});
@@ -116,7 +134,7 @@ namespace WinAirHockey {
 			// 
 			// toolStripMenuItem1
 			// 
-			this->toolStripMenuItem1->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(5) {
+			this->toolStripMenuItem1->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem ^  >(5) {
 				this->toolStripMenuItem4,
 					this->toolStripMenuItem5, this->toolStripMenuItem6, this->toolStripSeparator1, this->toolStripMenuItem7
 			});
@@ -161,7 +179,7 @@ namespace WinAirHockey {
 			// 
 			// toolStripMenuItem2
 			// 
-			this->toolStripMenuItem2->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(5) {
+			this->toolStripMenuItem2->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem ^  >(5) {
 				this->toolStripMenuItem8,
 					this->toolStripMenuItem9, this->toolStripMenuItem10, this->toolStripSeparator2, this->toolStripMenuItem11
 			});
@@ -204,7 +222,7 @@ namespace WinAirHockey {
 			// 
 			// toolStripMenuItem3
 			// 
-			this->toolStripMenuItem3->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(1) { this->toolStripMenuItem12 });
+			this->toolStripMenuItem3->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem ^  >(1) { this->toolStripMenuItem12 });
 			this->toolStripMenuItem3->Name = L"toolStripMenuItem3";
 			this->toolStripMenuItem3->Size = System::Drawing::Size(44, 20);
 			this->toolStripMenuItem3->Text = L"View";
@@ -229,8 +247,8 @@ namespace WinAirHockey {
 			// 
 			// splitContainer1.Panel1
 			// 
-			this->splitContainer1->Panel1->BackColor = System::Drawing::Color::Black;
-			this->splitContainer1->Panel1->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &MainForm::SplitContainer1_Panel1_Paint);
+			this->splitContainer1->Panel1->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(208)),
+				static_cast<System::Int32>(static_cast<System::Byte>(208)), static_cast<System::Int32>(static_cast<System::Byte>(208)));
 			// 
 			// splitContainer1.Panel2
 			// 
@@ -240,10 +258,6 @@ namespace WinAirHockey {
 			this->splitContainer1->Size = System::Drawing::Size(922, 515);
 			this->splitContainer1->SplitterDistance = 702;
 			this->splitContainer1->TabIndex = 1;
-			// 
-			// timer1
-			// 
-			this->timer1->Tick += gcnew System::EventHandler(this, &MainForm::Timer1_Tick);
 			// 
 			// button1
 			// 
@@ -256,6 +270,11 @@ namespace WinAirHockey {
 			this->button1->Text = L"Start";
 			this->button1->UseVisualStyleBackColor = true;
 			this->button1->Click += gcnew System::EventHandler(this, &MainForm::Button1_Click);
+			// 
+			// timer1
+			// 
+			this->timer1->Interval = 1;
+			this->timer1->Tick += gcnew System::EventHandler(this, &MainForm::Timer1_Tick);
 			// 
 			// MainForm
 			// 
@@ -272,7 +291,7 @@ namespace WinAirHockey {
 			this->menuStrip1->ResumeLayout(false);
 			this->menuStrip1->PerformLayout();
 			this->splitContainer1->Panel2->ResumeLayout(false);
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->splitContainer1))->EndInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->splitContainer1))->EndInit();
 			this->splitContainer1->ResumeLayout(false);
 			this->ResumeLayout(false);
 			this->PerformLayout();
@@ -282,20 +301,24 @@ namespace WinAirHockey {
 	private: System::Void ToolStripMenuItem7_Click(System::Object^ sender, System::EventArgs^ e) {
 		this->Close();
 	}
-private: System::Void SplitContainer1_Panel1_Paint(System::Object^ sender, System::Windows::Forms::PaintEventArgs^ e) {
+private: System::Void MyDoubleBufferedPanel_Paint(System::Object^ sender, System::Windows::Forms::PaintEventArgs^ e) {
 
 	Graphics ^g = e->Graphics;
 
 	SolidBrush ^ballBrush = gcnew SolidBrush(Color::FromArgb(255, 200, 200, 200));
 
-	if (!this->DoubleBuffered) {
-		this->DoubleBuffered = true;
-	}
-
 	ball_pos_x += ball_x_inc;
 	ball_pos_y += ball_y_inc;
 
-	g->Clear(splitContainer1->Panel1->BackColor);
+	if (ball_pos_x <= 10 || ball_pos_x >= myDoubleBufferedPanel1->Width - 10) {
+		ball_x_inc *= -1;
+	}
+
+	if (ball_pos_y <= 10 || ball_pos_y >= myDoubleBufferedPanel1->Height - 10) {
+		ball_y_inc *= -1;
+	}
+
+	g->Clear(myDoubleBufferedPanel1->BackColor);
 
 	if (timer1->Enabled) {
 		// draw all stuffs here
@@ -305,7 +328,7 @@ private: System::Void SplitContainer1_Panel1_Paint(System::Object^ sender, Syste
 	delete ballBrush;
 }
 private: System::Void Timer1_Tick(System::Object^ sender, System::EventArgs^ e) {
-	splitContainer1->Panel1->Invalidate();
+	myDoubleBufferedPanel1->Invalidate();
 }
 private: System::Void Button1_Click(System::Object^ sender, System::EventArgs^ e) {
 	bool timerEnabled = timer1->Enabled;
@@ -314,8 +337,8 @@ private: System::Void Button1_Click(System::Object^ sender, System::EventArgs^ e
 		button1->Text = L"Stop";
 
 		Random^ rand = gcnew Random();
-		ball_pos_x = rand->Next(splitContainer1->Panel1->Width);
-		ball_pos_y = rand->Next(splitContainer1->Panel1->Height);
+		ball_pos_x = rand->Next(myDoubleBufferedPanel1->Width);
+		ball_pos_y = rand->Next(myDoubleBufferedPanel1->Height);
 		delete rand;
 	} else {
 		button1->Text = L"Start";
