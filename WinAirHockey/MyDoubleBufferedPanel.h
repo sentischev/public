@@ -3,9 +3,9 @@
 using namespace System;
 using namespace System::Windows::Forms;
 
-public ref class MyDoubleBufferedPanel : public System::Windows::Forms::Panel {
+public ref class MyDoubleBufferedPanel : public Panel {
 public:
-	MyDoubleBufferedPanel() : System::Windows::Forms::Panel() {
+	MyDoubleBufferedPanel() : Panel() {
 		this->DoubleBuffered = true;
 	};
 };

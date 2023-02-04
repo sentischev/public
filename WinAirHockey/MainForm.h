@@ -7,6 +7,9 @@ extern int ball_pos_y;
 extern int ball_x_inc;
 extern int ball_y_inc;
 
+extern int user1_bat_pos;
+extern int user1_bat_inc;
+
 namespace WinAirHockey {
 
 	using namespace System;
@@ -29,20 +32,18 @@ namespace WinAirHockey {
 			//
 			//TODO: Add the constructor code here
 			//
-
 			myDoubleBufferedPanel1 = gcnew MyDoubleBufferedPanel();
-			myDoubleBufferedPanel1->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &MainForm::MyDoubleBufferedPanel_Paint);
 
-
-			myDoubleBufferedPanel1->Location = System::Drawing::Point(0, 0);
 			myDoubleBufferedPanel1->Name = L"myDoubleBufferedPanel1";
+			myDoubleBufferedPanel1->Location = System::Drawing::Point(0, 0);
 			myDoubleBufferedPanel1->Size = System::Drawing::Size(splitContainer1->Panel1->Width, splitContainer1->Panel1->Height);
-			myDoubleBufferedPanel1->TabIndex = 0;
 			myDoubleBufferedPanel1->BackColor = Color::FromArgb(255, 0, 0, 0);
 
-			this->splitContainer1->Panel1->SuspendLayout();
-			this->splitContainer1->Panel1->Controls->Add(myDoubleBufferedPanel1);
-			this->splitContainer1->Panel1->ResumeLayout();
+			myDoubleBufferedPanel1->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &MainForm::MyDoubleBufferedPanel1_Paint);
+
+			splitContainer1->Panel1->SuspendLayout();
+			splitContainer1->Panel1->Controls->Add(myDoubleBufferedPanel1);
+			splitContainer1->Panel1->ResumeLayout();
 		}
 
 	protected:
@@ -114,7 +115,7 @@ namespace WinAirHockey {
 			this->button1 = (gcnew System::Windows::Forms::Button());
 			this->timer1 = (gcnew System::Windows::Forms::Timer(this->components));
 			this->menuStrip1->SuspendLayout();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->splitContainer1))->BeginInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->splitContainer1))->BeginInit();
 			this->splitContainer1->Panel2->SuspendLayout();
 			this->splitContainer1->SuspendLayout();
 			this->SuspendLayout();
@@ -122,7 +123,7 @@ namespace WinAirHockey {
 			// menuStrip1
 			// 
 			this->menuStrip1->ImageScalingSize = System::Drawing::Size(17, 17);
-			this->menuStrip1->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem ^  >(3) {
+			this->menuStrip1->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(3) {
 				this->toolStripMenuItem1,
 					this->toolStripMenuItem2, this->toolStripMenuItem3
 			});
@@ -134,7 +135,7 @@ namespace WinAirHockey {
 			// 
 			// toolStripMenuItem1
 			// 
-			this->toolStripMenuItem1->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem ^  >(5) {
+			this->toolStripMenuItem1->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(5) {
 				this->toolStripMenuItem4,
 					this->toolStripMenuItem5, this->toolStripMenuItem6, this->toolStripSeparator1, this->toolStripMenuItem7
 			});
@@ -179,7 +180,7 @@ namespace WinAirHockey {
 			// 
 			// toolStripMenuItem2
 			// 
-			this->toolStripMenuItem2->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem ^  >(5) {
+			this->toolStripMenuItem2->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(5) {
 				this->toolStripMenuItem8,
 					this->toolStripMenuItem9, this->toolStripMenuItem10, this->toolStripSeparator2, this->toolStripMenuItem11
 			});
@@ -222,7 +223,7 @@ namespace WinAirHockey {
 			// 
 			// toolStripMenuItem3
 			// 
-			this->toolStripMenuItem3->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem ^  >(1) { this->toolStripMenuItem12 });
+			this->toolStripMenuItem3->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(1) { this->toolStripMenuItem12 });
 			this->toolStripMenuItem3->Name = L"toolStripMenuItem3";
 			this->toolStripMenuItem3->Size = System::Drawing::Size(44, 20);
 			this->toolStripMenuItem3->Text = L"View";
@@ -242,6 +243,7 @@ namespace WinAirHockey {
 			// splitContainer1
 			// 
 			this->splitContainer1->Dock = System::Windows::Forms::DockStyle::Fill;
+			this->splitContainer1->IsSplitterFixed = true;
 			this->splitContainer1->Location = System::Drawing::Point(0, 24);
 			this->splitContainer1->Name = L"splitContainer1";
 			// 
@@ -273,7 +275,7 @@ namespace WinAirHockey {
 			// 
 			// timer1
 			// 
-			this->timer1->Interval = 1;
+			this->timer1->Interval = 50;
 			this->timer1->Tick += gcnew System::EventHandler(this, &MainForm::Timer1_Tick);
 			// 
 			// MainForm
@@ -291,7 +293,7 @@ namespace WinAirHockey {
 			this->menuStrip1->ResumeLayout(false);
 			this->menuStrip1->PerformLayout();
 			this->splitContainer1->Panel2->ResumeLayout(false);
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->splitContainer1))->EndInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->splitContainer1))->EndInit();
 			this->splitContainer1->ResumeLayout(false);
 			this->ResumeLayout(false);
 			this->PerformLayout();
@@ -301,31 +303,40 @@ namespace WinAirHockey {
 	private: System::Void ToolStripMenuItem7_Click(System::Object^ sender, System::EventArgs^ e) {
 		this->Close();
 	}
-private: System::Void MyDoubleBufferedPanel_Paint(System::Object^ sender, System::Windows::Forms::PaintEventArgs^ e) {
+private: System::Void MyDoubleBufferedPanel1_Paint(System::Object^ sender, System::Windows::Forms::PaintEventArgs^ e) {
 
-	Graphics ^g = e->Graphics;
+	Graphics^ g = e->Graphics;
 
-	SolidBrush ^ballBrush = gcnew SolidBrush(Color::FromArgb(255, 200, 200, 200));
+	SolidBrush^ whiteBrush = gcnew SolidBrush(Color::FromArgb(255, 200, 200, 200));
 
-	ball_pos_x += ball_x_inc;
-	ball_pos_y += ball_y_inc;
+	if (timer1->Enabled) {
+		ball_pos_x += ball_x_inc;
+		ball_pos_y += ball_y_inc;
 
-	if (ball_pos_x <= 10 || ball_pos_x >= myDoubleBufferedPanel1->Width - 10) {
-		ball_x_inc *= -1;
-	}
-
-	if (ball_pos_y <= 10 || ball_pos_y >= myDoubleBufferedPanel1->Height - 10) {
-		ball_y_inc *= -1;
+		if (ball_pos_x <= 10) {
+			ball_x_inc *= -1;
+		}
+		if (ball_pos_x >= myDoubleBufferedPanel1->Width - 10) {
+			timer1->Enabled = false;
+			button1->Text = L"Start";
+		}
+		if (ball_pos_x >= myDoubleBufferedPanel1->Width - 25 &&
+			ball_pos_y > user1_bat_pos - 35 &&
+			ball_pos_y < user1_bat_pos + 35) {
+			ball_x_inc *= -1;
+		}
+		if (ball_pos_y <= 10 || ball_pos_y >= myDoubleBufferedPanel1->Height - 10) {
+			ball_y_inc *= -1;
+		}
 	}
 
 	g->Clear(myDoubleBufferedPanel1->BackColor);
 
-	if (timer1->Enabled) {
-		// draw all stuffs here
-		g->FillEllipse(ballBrush, Rectangle(ball_pos_x - 10, ball_pos_y - 10, 20, 20));
-	}
+	// draw all stuffs here
+	g->FillEllipse(whiteBrush, Rectangle(ball_pos_x - 10, ball_pos_y - 10, 20, 20));
+	g->FillRectangle(whiteBrush, Rectangle(myDoubleBufferedPanel1->Width - 15, user1_bat_pos - 35, 5, 70));
 
-	delete ballBrush;
+	delete whiteBrush;
 }
 private: System::Void Timer1_Tick(System::Object^ sender, System::EventArgs^ e) {
 	myDoubleBufferedPanel1->Invalidate();
@@ -337,13 +348,48 @@ private: System::Void Button1_Click(System::Object^ sender, System::EventArgs^ e
 		button1->Text = L"Stop";
 
 		Random^ rand = gcnew Random();
-		ball_pos_x = rand->Next(myDoubleBufferedPanel1->Width);
+		ball_pos_x = 30;
 		ball_pos_y = rand->Next(myDoubleBufferedPanel1->Height);
 		delete rand;
 	} else {
 		button1->Text = L"Start";
 	}
 	timer1->Enabled = timerEnabled;
+}
+protected: virtual bool ProcessCmdKey(System::Windows::Forms::Message% msg, System::Windows::Forms::Keys keyData) override {
+	switch (keyData) {
+	case Keys::Up:
+		user1_bat_pos -= user1_bat_inc;
+		if (user1_bat_pos <= 35)
+			user1_bat_pos = 35;
+		if (!timer1->Enabled)
+			myDoubleBufferedPanel1->Invalidate();
+		return true;
+	case Keys::Down:
+		user1_bat_pos += user1_bat_inc;
+		if (user1_bat_pos >= myDoubleBufferedPanel1->Height - 35)
+			user1_bat_pos = myDoubleBufferedPanel1->Height - 35;
+		if (!timer1->Enabled)
+			myDoubleBufferedPanel1->Invalidate();
+		return true;
+	case Keys::P:
+		if (!timer1->Enabled) {
+			button1->Text = L"Stop";
+
+			Random^ rand = gcnew Random();
+			ball_pos_x = 30;
+			ball_pos_y = rand->Next(myDoubleBufferedPanel1->Height);
+			delete rand;
+		} else {
+			button1->Text = L"Start";
+		}
+		timer1->Enabled = !timer1->Enabled;
+		return true;
+
+	default:
+		;
+	}
+	return System::Windows::Forms::Form::ProcessCmdKey(msg, keyData);
 }
 };
 }
