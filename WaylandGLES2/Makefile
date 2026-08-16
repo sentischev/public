@@ -12,5 +12,7 @@ OBJS=WaylandGLES2.o
 WaylandGLES2: $(OBJS)
 	$(CC) -o $@ $^ $(LDFLAGS)
 
+.PHONY: clean
+
 clean:
 	rm -rf *.o WaylandGLES2

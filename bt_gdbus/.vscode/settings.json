@@ -1,0 +1,20 @@
+{
+"C_Cpp.default.configurationProvider": "ms-vscode.makefile-tools",
+"makefile.launchConfigurations": [
+    {
+        "cwd": "${workspaceFolder}/build/bin",
+        "binaryPath": "${workspaceFolder}/build/bin/bt_gdbus",
+        "binaryArgs": []
+    }
+],
+"makefile.configurations": [
+    {
+        "name": "Release",
+        "makeArgs": []
+    },
+    {
+        "name": "Debug",
+        "makeArgs": ["debug"]
+    }
+]
+}
