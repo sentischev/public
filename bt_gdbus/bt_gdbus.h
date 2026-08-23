@@ -1,6 +1,6 @@
 
-#ifndef _BLE_DBUS_H
-#define _BLE_DBUS_H
+#ifndef _BT_GDBUS_H
+#define _BT_GDBUS_H
 
 
 

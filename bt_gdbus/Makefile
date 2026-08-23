@@ -7,7 +7,7 @@ TARGET		:= $(BIN_DIR)/bt_gdbus
 SRCS_C := $(shell find . -name "*.c")
 SRCS_CPP := $(shell find . -name "*.cpp")
 INC_DIRS := $(sort $(dir $(shell find . -name "*.h" -o -name "*.hpp")))
-INCLUDES := $(addprefix -I, $(INC_DIRS))
+INCLUDES := $(addprefix -I, $(subst ./,,$(INC_DIRS)))
 
 CC=gcc
 CXX=g++
@@ -25,8 +25,8 @@ debug: CFLAGS += -g -O0
 debug: CXXFLAGS += -g -O0
 
 # delete current directory path from filenames
-REL_SRCS_C := $(subst $(CURDIR)/,,$(SRCS_C))
-REL_SRCS_CPP := $(subst $(CURDIR)/,,$(SRCS_CPP))
+REL_SRCS_C := $(subst ./,,$(SRCS_C))
+REL_SRCS_CPP := $(subst ./,,$(SRCS_CPP))
 # objects will be built in $OBJ_DIR directory
 OBJS := $(addprefix $(OBJ_DIR)/, $(REL_SRCS_C:.c=.o) $(REL_SRCS_CPP:.cpp=.o))
 DEPS := $(OBJS:.o=.o.d)

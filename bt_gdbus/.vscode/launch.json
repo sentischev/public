@@ -20,11 +20,6 @@
                     "description": "Enable pretty-printing for gdb",
                     "text": "-enable-pretty-printing",
                     "ignoreFailures": true
-                },
-                {
-                    "description": "Disable inferior tty to prevent controlling terminal errors",
-                    "text": "set inferior-tty off",
-                    "ignoreFailures": true
                 }
             ],
             "preLaunchTask": "Build Release",
@@ -45,11 +40,6 @@
                 {
                     "description": "Enable pretty-printing for gdb",
                     "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
-                },
-                {
-                    "description": "Disable inferior tty to prevent controlling terminal errors",
-                    "text": "set inferior-tty off",
                     "ignoreFailures": true
                 }
             ],
