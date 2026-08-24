@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "gdbus.h"
+#include "gdbus_bt.h"
 #include "gdbus_common.h"
 
 #define TAG						"[GDBUS]"
@@ -14,6 +14,7 @@
 
 GDBusConnection *gdbus_con = NULL;
 GMainLoop *gdbus_loop = NULL;
+guint gdbus_signal_subscriptions[2] = {0, 0};
 int gdbus_spp_fd = -1;
 
 /* Introspection XML for Agent1 and Profile1 */
@@ -61,6 +62,13 @@ __attribute__((weak))
 void gdbus_spp_on_data_available(uint8_t *buf, uint32_t len) {
 	GDBUS_UNUSED(buf);
 	GDBUS_UNUSED(len);
+}
+
+/* Triggers when new Bluetooth adapter added.
+ */
+__attribute__((weak))
+void gdbus_hcix_added(const char *adapter_path) {
+	GDBUS_UNUSED(adapter_path);
 }
 
 /* SPP send function */
@@ -300,6 +308,155 @@ int gdbus_set_adapter_discoverable(const char *adapter_path, bool discoverable) 
 	return 0;
 }
 
+int gdbus_set_adapter_alias(const char *adapter_path, const char *alias) {
+	GError *error = NULL;
+
+	GVariant *result = g_dbus_connection_call_sync(
+		gdbus_con, "org.bluez",
+		adapter_path,
+		"org.freedesktop.DBus.Properties",
+		"Set",
+		g_variant_new("(ssv)",
+			"org.bluez.Adapter1",
+			"Alias",
+			g_variant_new_string(alias)
+		),
+		NULL,
+		G_DBUS_CALL_FLAGS_NONE, -1, NULL, &error
+	);
+
+	if (error) {
+		LOGE(TAG, "Failed to set %s alias to %s: %s\n",
+				adapter_path,
+				alias,
+				error->message);
+		g_error_free(error);
+		return -1;
+	} else {
+		LOGI(TAG, "Set %s alias to %s\n", adapter_path, alias);
+	}
+
+	if (result) {
+		g_variant_unref(result);
+	}
+
+	return 0;
+}
+
+int gdbus_get_adapters(gdbus_adapter_info_t *adapters, int adapters_array_size) {
+	GError *error = NULL;
+	GVariant *objects = NULL;
+	int count = 0;
+
+	GVariant *result = g_dbus_connection_call_sync(
+		gdbus_con, "org.bluez",
+		"/",
+		"org.freedesktop.DBus.ObjectManager",
+		"GetManagedObjects",
+		NULL,
+		G_VARIANT_TYPE("(a{oa{sa{sv}}})"),
+		G_DBUS_CALL_FLAGS_NONE, -1, NULL, &error
+	);
+
+	if (error) {
+		LOGE(TAG, "Failed to call GetManagedObjects: %s\n", error->message);
+		g_error_free(error);
+		return -1;
+	}
+
+	g_variant_get(result, "(a{oa{sa{sv}}})", &objects);
+
+	GVariantIter object_iter;
+	const char *object_path;
+	GVariant *interfaces;
+
+	g_variant_iter_init(&object_iter, objects);
+	/* Iterate through object paths */
+	while (g_variant_iter_loop(&object_iter, "{&o@a{sa{sv}}}", &object_path, &interfaces)) {
+		GVariantIter interface_iter;
+		const char *interface_name;
+		GVariant *properties;
+
+		g_variant_iter_init(&interface_iter, interfaces);
+		/* Iterate through interfaces attached to this path */
+		while (g_variant_iter_loop(&interface_iter, "{&s@a{sv}}", &interface_name, &properties)) {
+			/* Filter only org.bluez.Adapter1 interfaces */
+			if (g_strcmp0(interface_name, "org.bluez.Adapter1") == 0) {
+				if (count < adapters_array_size) {
+					strncpy(adapters[count].path, object_path, sizeof(adapters->path));
+
+					/* Extract properties from dictionary */
+					GVariantIter property_iter;
+					const char *property_name;
+					GVariant *property_value;
+
+					g_variant_iter_init(&property_iter, properties);
+					/* Iterate through Bluetooth adapter properties */
+					while (g_variant_iter_loop(&property_iter, "{&sv}", &property_name, &property_value)) {
+						if (g_strcmp0(property_name, "Address") == 0) {
+							strncpy(adapters[count].address,
+									g_variant_get_string(property_value, NULL),
+									sizeof(adapters->address));
+						}
+						else if (g_strcmp0(property_name, "Name") == 0) {
+							strncpy(adapters[count].name,
+									g_variant_get_string(property_value, NULL),
+									sizeof(adapters->name));
+						}
+						else if (g_strcmp0(property_name, "Alias") == 0) {
+							strncpy(adapters[count].alias,
+									g_variant_get_string(property_value, NULL),
+									sizeof(adapters->alias));
+						}
+						else if (g_strcmp0(property_name, "Powered") == 0) {
+							adapters[count].powered = g_variant_get_boolean(property_value) ? true : false;
+						}
+						else if (g_strcmp0(property_name, "Discoverable") == 0) {
+							adapters[count].discoverable = g_variant_get_boolean(property_value) ? true : false;
+						}
+					}
+
+					count++;
+				}
+			}
+		}
+	}
+
+	g_variant_unref(objects);
+	g_variant_unref(result);
+
+	return count;
+}
+
+void gdbus_hcix_interface_added(GDBusConnection *con,
+		const gchar *sender,
+		const gchar *object_path,
+		const gchar *interface_name,
+		const gchar *signal_name,
+		GVariant *parameters,
+		gpointer user_data) {
+	GDBUS_UNUSED(con);
+	GDBUS_UNUSED(sender);
+	GDBUS_UNUSED(object_path);
+	GDBUS_UNUSED(interface_name);
+	GDBUS_UNUSED(signal_name);
+	GDBUS_UNUSED(user_data);
+
+	const char *adapter_path = NULL;
+	GVariant *interfaces = NULL;
+
+	g_variant_get(parameters, "(&o@a{sa{sv}})", &adapter_path, &interfaces);
+
+	if (g_variant_lookup_value(interfaces, "org.bluez.Adapter1", G_VARIANT_TYPE_VARDICT)) {
+		LOGI(TAG, "New Bluetooth adapter connected: %s\n", adapter_path);
+		gdbus_hcix_added(adapter_path); // call user callback
+	}
+
+	if (interfaces) {
+		g_variant_unref(interfaces);
+	}
+}
+
 int gdbus_init() {
 	GError *error = NULL;
 
@@ -337,7 +494,19 @@ int gdbus_init() {
 					SPP_UUID,
 					g_variant_builder_end(&builder)));
 
-	LOGI(TAG, "Bluetooth Service Active\n");
+	gdbus_signal_subscriptions[0] = g_dbus_connection_signal_subscribe(
+		gdbus_con, "org.bluez",
+		"org.freedesktop.DBus.ObjectManager",
+		"InterfacesAdded",
+		"/",
+		NULL,
+		G_DBUS_SIGNAL_FLAGS_NONE,
+		gdbus_hcix_interface_added,
+		NULL,
+		NULL
+	);
+
+	LOGI(TAG, "Bluetooth SPP Service Active\n");
 
 	return 0;
 }
@@ -348,6 +517,13 @@ int gdbus_run() {
 
 	LOGI(TAG, "Ready for Pairing and SPP data exchange\n");
 	g_main_loop_run(gdbus_loop);
+
+	return 0;
+}
+
+int gdbus_release() {
+	g_dbus_connection_signal_unsubscribe(gdbus_con, gdbus_signal_subscriptions[0]);
+	g_object_unref(gdbus_con);
 
 	return 0;
 }

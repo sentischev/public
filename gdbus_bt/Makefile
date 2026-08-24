@@ -2,7 +2,7 @@
 BUILD_DIR	:= ./build
 OBJ_DIR		:= $(BUILD_DIR)/objects
 BIN_DIR		:= $(BUILD_DIR)/bin
-TARGET		:= $(BIN_DIR)/bt_gdbus
+TARGET		:= $(BIN_DIR)/gdbus_bt
 
 SRCS_C := $(shell find . -name "*.c")
 SRCS_CPP := $(shell find . -name "*.cpp")

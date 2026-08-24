@@ -5,10 +5,10 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Run bt_gdbus",
+            "name": "Run gdbus_bt",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/bin/bt_gdbus",
+            "program": "${workspaceFolder}/build/bin/gdbus_bt",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
@@ -26,10 +26,10 @@
             "miDebuggerPath": "/usr/bin/gdb"
         },
         {
-            "name": "Debug bt_gdbus",
+            "name": "Debug gdbus_bt",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/bin/bt_gdbus",
+            "program": "${workspaceFolder}/build/bin/gdbus_bt",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",

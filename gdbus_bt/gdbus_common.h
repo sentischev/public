@@ -21,7 +21,8 @@ void gdbus_print(gdbus_log_level_t level, const char *tag, const char *format, .
 #define LOGW(tag, format, ...) gdbus_print(GDBUS_LOG_LEVEL_WARN, tag, format, ##__VA_ARGS__)
 #define LOGE(tag, format, ...) gdbus_print(GDBUS_LOG_LEVEL_ERROR, tag, format, ##__VA_ARGS__)
 
-#define GDBUS_UNUSED(x)	(void)x
+#define GDBUS_UNUSED(x)	((void)x)
+#define GDBUS_ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
 
 #ifdef __cplusplus
 }

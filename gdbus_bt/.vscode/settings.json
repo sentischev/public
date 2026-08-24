@@ -3,7 +3,7 @@
     "makefile.launchConfigurations": [
         {
             "cwd": "${workspaceFolder}/build/bin",
-            "binaryPath": "${workspaceFolder}/build/bin/bt_gdbus",
+            "binaryPath": "${workspaceFolder}/build/bin/gdbus_bt",
             "binaryArgs": []
         }
     ],
