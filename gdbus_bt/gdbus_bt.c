@@ -345,7 +345,6 @@ int gdbus_set_adapter_alias(const char *adapter_path, const char *alias) {
 
 int gdbus_get_adapters(gdbus_adapter_info_t *adapters, int adapters_array_size) {
 	GError *error = NULL;
-	GVariant *objects = NULL;
 	int count = 0;
 
 	GVariant *result = g_dbus_connection_call_sync(
@@ -364,15 +363,13 @@ int gdbus_get_adapters(gdbus_adapter_info_t *adapters, int adapters_array_size) 
 		return -1;
 	}
 
-	g_variant_get(result, "(a{oa{sa{sv}}})", &objects);
-
-	GVariantIter object_iter;
+	GVariantIter *object_iter = NULL;
 	const char *object_path;
 	GVariant *interfaces;
 
-	g_variant_iter_init(&object_iter, objects);
+	g_variant_get(result, "(a{oa{sa{sv}}})", &object_iter);
 	/* Iterate through object paths */
-	while (g_variant_iter_loop(&object_iter, "{&o@a{sa{sv}}}", &object_path, &interfaces)) {
+	while (g_variant_iter_loop(object_iter, "{&o@a{sa{sv}}}", &object_path, &interfaces)) {
 		GVariantIter interface_iter;
 		const char *interface_name;
 		GVariant *properties;
@@ -422,7 +419,7 @@ int gdbus_get_adapters(gdbus_adapter_info_t *adapters, int adapters_array_size) 
 		}
 	}
 
-	g_variant_unref(objects);
+	g_variant_iter_free(object_iter);
 	g_variant_unref(result);
 
 	return count;
