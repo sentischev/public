@@ -4,6 +4,7 @@
 
 #include <glib.h>
 #include <gio/gio.h>
+#include <gio/gunixfdlist.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -13,9 +14,9 @@ extern "C" {
 
 typedef struct {
 	char path[16];		/* /org/bluez/hci0 */
-	char address[32];
-	char name[32];
-	char alias[32];
+	char address[18];	/* 12:34:56:AB:CD:EF */
+	char name[16];
+	char alias[16];
 	bool powered;
 	bool discoverable;
 } gdbus_adapter_info_t;

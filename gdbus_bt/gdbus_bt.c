@@ -56,6 +56,18 @@ bool gdbus_pairing_response(const char *device_path, uint32_t passkey) {
 	return true;
 }
 
+/* Implement this function in your code to answer for service authorization
+ * request. Return false to reject authorization and deny the connection.
+ * This function is not called for SPP service, but for A2DP and Headset services.
+ */
+__attribute__((weak))
+bool gdbus_service_authorization_response(const char *device_path, const char *uuid) {
+	GDBUS_UNUSED(device_path);
+	GDBUS_UNUSED(uuid);
+
+	return true;
+}
+
 /* Implement this function in your code to handle SPP incoming data.
  */
 __attribute__((weak))
@@ -130,6 +142,7 @@ void gdbus_handle_method_call(GDBusConnection *con,
 		if (g_strcmp0(method_name, "RequestConfirmation") == 0) {
 			const gchar *device_path;
 			guint32 passkey;
+
 			g_variant_get(parameters, "(&ou)", &device_path, &passkey);
 
 			LOGI(TAG, "RequestConfirmation triggered for device %s\n", device_path);
@@ -148,8 +161,25 @@ void gdbus_handle_method_call(GDBusConnection *con,
 			}
 		}
 		else if (g_strcmp0(method_name, "AuthorizeService") == 0) {
-			LOGI(TAG, "AuthorizeService triggered\n");
-			g_dbus_method_invocation_return_value(invocation, NULL);
+			const gchar *device_path;
+			const gchar *uuid;
+
+			g_variant_get(parameters, "(&os)", &device_path, &uuid);
+
+			LOGI(TAG, "AuthorizeService triggered for device %s\n", device_path);
+			LOGI(TAG, "\tService UUID: %s\n", uuid);
+
+			// get user agent response
+			bool response = gdbus_service_authorization_response(device_path, uuid);
+			if (response) {
+				LOGI(TAG, "\tAccepted\n");
+				g_dbus_method_invocation_return_value(invocation, NULL);
+			} else {
+				LOGI(TAG, "\tRejected\n");
+				g_dbus_method_invocation_return_dbus_error(invocation,
+						"org.bluez.Error.Rejected",
+						"Access denied by agent");
+			}
 		}
 		else if (g_strcmp0(method_name, "Cancel") == 0) {
 			LOGI(TAG, "Pairing operation canceled\n");

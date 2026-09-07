@@ -17,9 +17,9 @@ CFLAGS += -O2 -Wall -Wextra -MMD -MP $(INCLUDES)
 CXXFLAGS += -O2 -Wall -Wextra -MMD -MP $(INCLUDES)
 LIBS +=
 
-CFLAGS += $(shell pkg-config --cflags glib-2.0 gio-2.0)
-CXXFLAGS += $(shell pkg-config --cflags glib-2.0 gio-2.0)
-LIBS += $(shell pkg-config --libs glib-2.0 gio-2.0)
+CFLAGS += $(shell pkg-config --cflags glib-2.0 gio-2.0 gio-unix-2.0)
+CXXFLAGS += $(shell pkg-config --cflags glib-2.0 gio-2.0 gio-unix-2.0)
+LIBS += $(shell pkg-config --libs glib-2.0 gio-2.0 gio-unix-2.0)
 
 debug: CFLAGS += -g -O0
 debug: CXXFLAGS += -g -O0
