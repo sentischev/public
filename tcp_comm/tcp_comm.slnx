@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="tcp_comm.vcxproj" Id="3aa42dd1-4a0a-433c-84de-b118d1a5bb8d" />
+</Solution>

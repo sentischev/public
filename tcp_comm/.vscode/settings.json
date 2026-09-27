@@ -1,0 +1,22 @@
+{
+    "C_Cpp.default.configurationProvider": "ms-vscode.makefile-tools",
+    "makefile.launchConfigurations": [
+        {
+            "cwd": "${workspaceFolder}/build/bin",
+            "binaryPath": "${workspaceFolder}/build/bin/tcp_comm",
+            "binaryArgs": []
+        }
+    ],
+    "makefile.configurations": [
+        {
+            "name": "Release",
+            "makeArgs": []
+        },
+        {
+            "name": "Debug",
+            "makeArgs": [
+                "debug"
+            ]
+        }
+    ]
+}
