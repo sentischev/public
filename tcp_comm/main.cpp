@@ -13,7 +13,7 @@ bool is_server = true;
 int main(int argc, char *argv[]) {
 	strncpy(server_host, "127.0.0.1", sizeof(server_host) - 1);
 
-	for (int i = 0; i < argc; ++i) {
+	for (int i = 1; i < argc; ++i) {
 		if (strcmp("-a", argv[i]) == 0 || strcmp("--server-host", argv[i]) == 0) {
 			// tcp server ip-address or host name
 			++i;
@@ -51,14 +51,14 @@ int main(int argc, char *argv[]) {
 void run_tcp_server() {
 	TcpSocket server;
 
-	if (!server.tcp_listen(tcp_port)) {
+	if (!server.listen(tcp_port)) {
 		LOGE(TAG, "server listen error\n");
 		return;
 	}
 
 	LOGI(TAG, "server listening on port %u\n", tcp_port);
 
-	TcpSocket *client = server.tcp_accept();
+	TcpSocket *client = server.accept();
 	if (client != NULL) {
 		LOGI(TAG, "client connected\n");
 
@@ -76,7 +76,7 @@ void run_tcp_server() {
 void run_tcp_client() {
 	TcpSocket client;
 
-	if (client.tcp_connect(server_host, tcp_port)) {
+	if (client.connect(server_host, tcp_port)) {
 		LOGI(TAG, "connected to %s\n", server_host);
 
 		client.OnDataAvailable = client_OnDataAvailable;
@@ -86,7 +86,7 @@ void run_tcp_client() {
 			sleep_ms(100);
 		}
 
-		client.tcp_close();
+		client.close();
 	} else {
 		LOGE(TAG, "can't connect to %s\n", server_host);
 	}

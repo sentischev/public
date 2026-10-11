@@ -2,6 +2,7 @@
 #define _TCP_SOCKET_H
 
 #include <stdint.h>
+#include <string>
 
 #ifdef _WINDOWS
 	#include <winsock2.h>
@@ -15,48 +16,76 @@
 #else
 	#include <pthread.h>
 	#include <unistd.h>
+	#include <sys/types.h>
+	#include <sys/socket.h>
+	#include <netinet/in.h>
+	#include <arpa/inet.h>
+	#include <netdb.h>
 
 	#define tcp_thread_ret_t void *
+	#define INVALID_SOCKET -1
+	#define SOCKET_ERROR -1
 
 	typedef int tcp_socket_t;
 	typedef pthread_t tcp_thread_t;
-
-	#define INVALID_SOCKET -1
-	#define SOCKET_ERROR -1
 #endif
 
 class TcpSocket;
 
 typedef void (*TcpSocketOnDataAvailableCallback)(TcpSocket *socket, const char *data, int len);
 
+class IPv4Addr {
+public:
+	uint32_t addr;
+
+	IPv4Addr() {
+		addr = INADDR_NONE;
+	}
+
+	IPv4Addr(uint32_t addr) {
+		this->addr = addr;
+	}
+
+	IPv4Addr(std::string ip_str) {
+		fromStr(ip_str);
+	}
+
+	std::string toStr();
+	bool fromStr(std::string ip_str);
+};
+
 class TcpSocket {
 public:
+	IPv4Addr ip;
+
 	TcpSocket();
 	TcpSocket(tcp_socket_t tcp_socket);
 	virtual ~TcpSocket();
 
 	// client mode: connect to server
-	bool tcp_connect(const char *host, uint16_t hostPort);
-	bool tcp_connect(uint32_t serverIPAddress, uint16_t serverPort);
+	bool connect(const char *host, uint16_t hostPort);
+	bool connect(uint32_t serverIPAddress, uint16_t serverPort);
 
 	// server mode: listen and accept clients
-	bool tcp_listen(uint16_t port, int max_clients = 3);
-	TcpSocket *tcp_accept();
+	bool listen(uint16_t port, int max_clients = 3);
+	TcpSocket *accept();
 
 	// data transfer
-	int tcp_send(const char *data, int len);
-	int tcp_receive(char *data, int max_len);
+	int send(const char *data, int len);
+	int recv(char *data, int max_len);
 
 	// callback setup and background thread handling
 	TcpSocketOnDataAvailableCallback OnDataAvailable;
 	void startReceiveThread();
 
-	void tcp_close();
+	void close();
 	bool isConnected();
+	bool isServer();
 
 private:
 	tcp_socket_t m_sock;
 	bool m_isConnected;
+	bool m_isServer;
 	tcp_thread_t m_receiveThread;
 	bool m_receiveThreadRunning;
 
